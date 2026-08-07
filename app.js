@@ -4,7 +4,6 @@
   const navRoot = document.getElementById("courseNav");
   const frame = document.getElementById("contentFrame");
   const pageTitle = document.getElementById("pageTitle");
-  const breadcrumb = document.getElementById("breadcrumb");
   const search = document.getElementById("courseSearch");
   const completeButton = document.getElementById("completeButton");
   const completeText = completeButton.querySelector("span");
@@ -93,7 +92,6 @@
     frame.src = item.path;
     frame.title = item.title;
     pageTitle.textContent = item.title;
-    breadcrumb.textContent = item.section;
     document.title = `${item.title} | Clinical Simulations for the Athletic Trainer`;
 
     navRoot.querySelectorAll(".nav-link").forEach(link => {

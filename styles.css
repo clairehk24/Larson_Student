@@ -59,13 +59,12 @@ svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-
 }
 .sidebar-cover {
   height: 128px;
-  background:
-    linear-gradient(180deg, rgba(27,38,59,.05), rgba(27,38,59,.64)),
-    url("assets/4_misc.jpg") center 54% / cover no-repeat;
+  background: var(--navy);
+  border-bottom: 6px solid var(--accent);
   flex: none;
 }
 .brand-panel {
-  margin: -42px 18px 8px;
+  margin: -54px 18px 4px;
   padding: 18px;
   border-radius: var(--radius);
   background: rgba(255,255,255,.97);
@@ -73,7 +72,7 @@ svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-
   position: relative;
 }
 .brand-logo { width: 165px; max-width: 100%; display: block; margin-bottom: 16px; }
-.eyebrow, .breadcrumb {
+.eyebrow {
   margin: 0 0 6px;
   color: var(--accent-dark);
   font: 700 .72rem/1.2 var(--font-ui);
@@ -83,7 +82,7 @@ svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-
 .brand-panel h1 { margin: 0; color: var(--navy); font-size: 1.55rem; line-height: 1.15; }
 .brand-subtitle { margin: 8px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.45; }
 
-.sidebar-tools { padding: 14px 18px 10px; }
+.sidebar-tools { padding: 10px 18px 8px; }
 .search-label { display: block; margin-bottom: 7px; color: var(--navy); font: 700 .76rem/1.2 var(--font-ui); }
 .search-wrap { position: relative; }
 .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 17px; color: #7a8495; }
@@ -98,8 +97,8 @@ svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-
 }
 .search-wrap input:focus { outline: 3px solid rgba(214,94,0,.18); border-color: var(--accent); }
 
-.course-nav { padding: 4px 12px 20px; flex: 1; }
-.nav-section { margin: 6px 0 12px; }
+.course-nav { padding: 0 12px 20px; flex: 1; }
+.nav-section { margin: 4px 0 10px; }
 .nav-section summary {
   list-style: none;
   display: flex;
@@ -173,7 +172,6 @@ svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-
 .topbar-left, .topbar-actions { display: flex; align-items: center; gap: 12px; }
 .title-group { min-width: 0; }
 .title-group h2 { margin: 0; color: var(--navy); font-size: 1.2rem; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.breadcrumb { margin-bottom: 3px; }
 .icon-button, .secondary-button, .complete-button {
   min-height: 42px;
   border: 1px solid var(--line);
