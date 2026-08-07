@@ -6,7 +6,9 @@ import sys
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from docx import Document
+from docx.enum.style import WD_STYLE_TYPE
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.shared import Pt, RGBColor
 from lxml import etree
 
 
@@ -218,6 +220,236 @@ SIMULATIONS = (
             ("Postsimulation Activity 1: Reflection", "Postsimulation Activity 1: Reflection", "postsimulation-activity-1-reflection.docx"),
         ),
     },
+    {
+        "id": "simulation-15",
+        "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim15_Primary Assessment.docx",
+        "page": ROOT / "pages" / "simulation-15.html",
+        "output_dir": ROOT / "assets" / "downloads" / "simulation-15",
+        "activities": (
+            ("Presimulation Activity 2: List", "Presimulation Activity 2: List", "presimulation-activity-2-list.docx"),
+            ("Presimulation Activity 3: Partner List (Presimulation Activity 2 Required First)", "Presimulation Activity 3: Partner List (Presimulation Activity 2 Required First)", "presimulation-activity-3-partner-list.docx"),
+            ("Presimulation Activity 4: Primary Assessment Practice", "Presimulation Activity 4: Primary Assessment Practice", "presimulation-activity-4-primary-assessment-practice.docx"),
+            ("Presimulation Activity 5: Identify Components", "Presimulation Activity 5: Identify Components", "presimulation-activity-5-identify-components.docx"),
+            ("Postsimulation Activity 1: Pulse and Heart Rate", "Postsimulation Activity 1: Pulse and Heart Rate", "postsimulation-activity-1-pulse-and-heart-rate.docx"),
+            ("Postsimulation Activity 2: Oxygen and Respiration", "Postsimulation Activity 2: Oxygen and Respiration", "postsimulation-activity-2-oxygen-and-respiration.docx"),
+            ("Postsimulation Activity 3: Blood Pressure and Perfusion", "Postsimulation Activity 3: Blood Pressure and Perfusion", "postsimulation-activity-3-blood-pressure-and-perfusion.docx"),
+            ("Presimulation Activity 4: Other Assessments", "Presimulation Activity 4: Other Assessments", "presimulation-activity-4-other-assessments.docx"),
+        ),
+    },
+    {
+        "id": "simulation-17",
+        "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim17_SSIMS.docx",
+        "page": ROOT / "pages" / "simulation-17.html",
+        "output_dir": ROOT / "assets" / "downloads" / "simulation-17",
+        "activities": (
+            ("Presimulation Activity 2: Special Tests", "Presimulation Activity 2: Special Tests", "presimulation-activity-2-special-tests.docx"),
+            ("Presimulation Activity 3: Anatomy", "Presimulation Activity 3: Anatomy", "presimulation-activity-3-anatomy.docx"),
+            ("Presimulation Activity 4: Insurance", "Presimulation Activity 4: Insurance", "presimulation-activity-4-insurance.docx"),
+            ("Presimulation Activity 5: Social Determinants of Health", "Presimulation Activity 5: Social Determinants of Health", "presimulation-activity-5-social-determinants-of-health.docx"),
+            ("Postsimulation Activity 1: Reflection", "Postsimulation Activity 1: Reflection", "postsimulation-activity-1-reflection.docx"),
+            ("Postsimulation Activity 2: Feedback on Media", "Postsimulation Activity 2: Feedback on Media", "postsimulation-activity-2-feedback-on-media.docx"),
+            ("Postsimulation Activity 3: Self-Assessment", "Postsimulation Activity 3: Self-Assessment", "postsimulation-activity-3-self-assessment.docx"),
+            ("Postsimulation Activity 4: Change", "Postsimulation Activity 4: Change", "postsimulation-activity-4-change.docx"),
+        ),
+    },
+    {
+        "id": "simulation-18",
+        "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim18_CSI.docx",
+        "page": ROOT / "pages" / "simulation-18.html",
+        "output_dir": ROOT / "assets" / "downloads" / "simulation-18",
+        "activities": (
+            ("Presimulation Activity 2: Emergency Action Plan (EAP)", "Presimulation Activity 2: Emergency Action Plan (EAP)", "presimulation-activity-2-emergency-action-plan.docx"),
+            ("Presimulation Activity 3: Practice", "Presimulation Activity 3: Practice", "presimulation-activity-3-practice.docx"),
+            ("Presimulation Activity 4: Communication", "Presimulation Activity 4: Communication", "presimulation-activity-4-communication.docx"),
+            ("Postsimulation Activity 1: Elevator Speech", "Postsimulation Activity 1: Elevator Speech", "postsimulation-activity-1-elevator-speech.docx"),
+            ("Activity 2: Roles and Actions", "Postsimulation Activity 2: Roles and Actions", "postsimulation-activity-2-roles-and-actions.docx"),
+        ),
+    },
+    {
+        "id": "simulation-19",
+        "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim19_Snowboard Accident.docx",
+        "page": ROOT / "pages" / "simulation-19.html",
+        "output_dir": ROOT / "assets" / "downloads" / "simulation-19",
+        "activities": (
+            ("Presimulation Activity 2: Emergency Action Plan (EAP)", "Presimulation Activity 2: Emergency Action Plan (EAP)", "presimulation-activity-2-emergency-action-plan.docx"),
+            ("Presimulation Activity 3: Primary Assessment", "Presimulation Activity 3: Primary Assessment", "presimulation-activity-3-primary-assessment.docx"),
+            ("Presimulation Activity 4: Communication", "Presimulation Activity 4: Communication", "presimulation-activity-4-communication.docx"),
+            ("Presimulation Activity 5: Equipment Considerations", "Presimulation Activity 5: Equipment Considerations", "presimulation-activity-5-equipment-considerations.docx"),
+            ("Presimulation Activity 6: Identification", "Presimulation Activity 6: Identification", "presimulation-activity-6-identification.docx"),
+            ("Presimulation Activity 7: Care Plan", "Presimulation Activity 7: Care Plan", "presimulation-activity-7-care-plan.docx"),
+            ("Postsimulation Activity 1: After Action Report", "Postsimulation Activity 1: After Action Report", "postsimulation-activity-1-after-action-report.docx"),
+            ("Postsimulation Activity 2: Subjective, Objective, Assessment, Plan (SOAP) Note", "Postsimulation Activity 2: Subjective, Objective, Assessment, Plan (SOAP) Note", "postsimulation-activity-2-soap-note.docx"),
+            ("Postsimulation Activity 3: Reflection", "Postsimulation Activity 3: Reflection", "postsimulation-activity-3-reflection.docx"),
+        ),
+    },
+    {
+        "id": "simulation-20",
+        "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim20 Head-to-Head (Head Injury Part 1).docx",
+        "page": ROOT / "pages" / "simulation-20.html",
+        "output_dir": ROOT / "assets" / "downloads" / "simulation-20",
+        "activities": (
+            ("Presimulation Activity 2: Head Injury Assessment", "Presimulation Activity 2: Head Injury Assessment", "presimulation-activity-2-head-injury-assessment.docx"),
+            ("Presimulation Activity 3: Head Injuries", "Presimulation Activity 3: Head Injuries", "presimulation-activity-3-head-injuries.docx"),
+            ("Presimulation Activity 4: Cranial Nerve Routine", "Presimulation Activity 4: Cranial Nerve Routine", "presimulation-activity-4-cranial-nerve-routine.docx"),
+            ("Postsimulation Activity 1: Documentation", "Postsimulation Activity 1: Documentation", "postsimulation-activity-1-documentation.docx"),
+            ("Postsimulation Activity 2: Preparation", "Postsimulation Activity 2: Preparation", "postsimulation-activity-2-preparation.docx"),
+            ("Postsimulation Activity 3: Review of Literature", "Postsimulation Activity 3: Review of Literature", "postsimulation-activity-3-review-of-literature.docx"),
+            ("Postsimulation Activity 4: Quiz", "Postsimulation Activity 4: Quiz", "postsimulation-activity-4-quiz.docx"),
+        ),
+    },
+    {
+        "id": "simulation-21",
+        "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim21 SCAT (Head Injury Part 2).docx",
+        "page": ROOT / "pages" / "simulation-21.html",
+        "output_dir": ROOT / "assets" / "downloads" / "simulation-21",
+        "resources": ("SCAT6 Instructions", "HCP SCAT6 Rain Shoemaker"),
+        "activities": (
+            ("Presimulation Activity 2: Administer SCAT6", "Presimulation Activity 2: Administer SCAT6", "presimulation-activity-2-administer-scat6.docx"),
+            ("Presimulation Activity 3: Take-Home Instructions", "Presimulation Activity 3: Take-Home Instructions", "presimulation-activity-3-take-home-instructions.docx"),
+            ("Presimulation Activity 4: SCAT6 Instructions", "Presimulation Activity 4: SCAT6 Instructions", "presimulation-activity-4-scat6-instructions.docx"),
+            ("Presimulation Activity 5: RTP and RTL", "Presimulation Activity 5: RTP and RTL", "presimulation-activity-5-rtp-and-rtl.docx"),
+            ("Rubric", "Rubric: Sport Concussion Assessment Tool (Concussion Part 2)", "rubric-sport-concussion-assessment-tool.docx"),
+            ("Postsimulation Activity 1: Patient Care Report (PCR)", "Postsimulation Activity 1: Patient Care Report (PCR)", "postsimulation-activity-1-patient-care-report.docx"),
+            ("Postsimulation Activity 2: Plan", "Postsimulation Activity 2: Plan", "postsimulation-activity-2-plan.docx"),
+            ("Postsimulation Activity 3: Research and Understanding", "Postsimulation Activity 3: Research and Understanding", "postsimulation-activity-3-research-and-understanding.docx"),
+        ),
+    },
+    {
+        "id": "simulation-22",
+        "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim22 Provider Communication (Head Injury Part 3).docx",
+        "page": ROOT / "pages" / "simulation-22.html",
+        "output_dir": ROOT / "assets" / "downloads" / "simulation-22",
+        "resources": ("96-Hour SCAT6",),
+        "activities": (
+            ("Presimulation Activity 2: Referral", "Presimulation Activity 2: Referral", "presimulation-activity-2-referral.docx"),
+            ("Presimulation Activity 3: Documentation", "Presimulation Activity 3: Documentation", "presimulation-activity-3-documentation.docx"),
+            ("Presimulation Activity 4: Why Refer", "Presimulation Activity 4: Why Refer", "presimulation-activity-4-why-refer.docx"),
+            ("Presimulation Activity 5: Why a PT", "Presimulation Activity 5: Why a PT", "presimulation-activity-5-why-a-pt.docx"),
+            ("Postsimulation Activity 1: Documentation", "Postsimulation Activity 1: Documentation", "postsimulation-activity-1-documentation.docx"),
+            ("Postsimulation Activity 2: Summarizing and Clarifying Email", "Postsimulation Activity 2: Summarizing and Clarifying Email", "postsimulation-activity-2-summarizing-and-clarifying-email.docx"),
+            ("Postsimulation Activity 3: Literature Review", "Postsimulation Activity 3: Literature Review", "postsimulation-activity-3-literature-review.docx"),
+            ("Physical Therapy and AT/HCP Diagnosis and Concussion Management", "Postsimulation Activity 4: Physical Therapy and AT/HCP Diagnosis and Concussion Management", "postsimulation-activity-4-physical-therapy-and-diagnosis.docx"),
+            ("Postsimulation Activity 5: New Knowledge", "Postsimulation Activity 5: New Knowledge", "postsimulation-activity-5-new-knowledge.docx"),
+        ),
+    },
+    {
+        "id": "simulation-23", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim23 EHS.docx", "page": ROOT / "pages" / "simulation-23.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-23",
+        "activities": (
+            ("Presimulation Activity 2: Reflection Questions", "Presimulation Activity 2: Reflection Questions", "presimulation-activity-2-reflection-questions.docx"),
+            ("Presimulation Activity 3: Practice", "Presimulation Activity 3: Practice", "presimulation-activity-3-practice.docx"),
+            ("Postsimulation Activity 1: Reflection Paper", "Postsimulation Activity 1: Reflection Paper", "postsimulation-activity-1-reflection-paper.docx"),
+            ("Postsimulation Activity 2: Documentation", "Postsimulation Activity 2: Documentation", "postsimulation-activity-2-documentation.docx"),
+        ),
+    },
+    {
+        "id": "simulation-24", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim24 Rotator Cuff Complication.docx", "page": ROOT / "pages" / "simulation-24.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-24",
+        "activities": (
+            ("Presimulation Activity 2: Signs and Symptoms", "Presimulation Activity 2: Signs and Symptoms", "presimulation-activity-2-signs-and-symptoms.docx"),
+            ("Presmulation Activity 3: Surgical Factors", "Presmulation Activity 3: Surgical Factors", "presmulation-activity-3-surgical-factors.docx"),
+            ("Presimulation Activity 4: History", "Presimulation Activity 4: History", "presimulation-activity-4-history.docx"),
+            ("Presimulation Activity 5: Postsurgical Complications", "Presimulation Activity 5: Postsurgical Complications", "presimulation-activity-5-postsurgical-complications.docx"),
+            ("Postsimulation Activity 1: Reflection Paper", "Postsimulation Activity 1: Reflection Paper", "postsimulation-activity-1-reflection-paper.docx"),
+            ("Postsimulation Activity 2: Questions Remaining", "Postsimulation Activity 2: Questions Remaining", "postsimulation-activity-2-questions-remaining.docx"),
+        ),
+    },
+    {
+        "id": "simulation-25", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim25 Foot Pain Telehealth.docx", "page": ROOT / "pages" / "simulation-25.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-25",
+        "activities": (
+            ("Presimulation Activity 2: Understanding Foot Injuries", "Presimulation Activity 2: Understanding Foot Injuries", "presimulation-activity-2-understanding-foot-injuries.docx"),
+            ("Presimulation Activity 3: Cardiopulmonary Resuscitation (CPR)", "Presimulation Activity 3: Cardiopulmonary Resuscitation (CPR)", "presimulation-activity-3-cardiopulmonary-resuscitation.docx"),
+            ("Presimulation Activity 4: Phone Etiquette", "Presimulation Activity 4: Phone Etiquette", "presimulation-activity-4-phone-etiquette.docx"),
+            ("Postsimulation Activity 1: Parent Summary of Athlete Interaction", "Postsimulation Activity 1: Parent Summary of Athlete Interaction", "postsimulation-activity-1-parent-summary.docx"),
+            ("Presimulation Activity 2: Reflection", "Presimulation Activity 2: Reflection", "presimulation-activity-2-reflection.docx"),
+        ),
+    },
+    {
+        "id": "simulation-26", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim26 Foot Pain Gait Analysis.docx", "page": ROOT / "pages" / "simulation-26.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-26", "resources": ("Running Gait Videos",),
+        "activities": (
+            ("Presimulation Activity 2: Phases of Gait", "Presimulation Activity 2: Phases of Gait", "presimulation-activity-2-phases-of-gait.docx"),
+            ("Presimulation Activity 3: Functional Analysis", "Presimulation Activity 3: Functional Analysis", "presimulation-activity-3-functional-analysis.docx"),
+            ("Presimulation Activity 4: Peer Recorded Gait Analysis", "Presimulation Activity 4: Peer Recorded Gait Analysis", "presimulation-activity-4-peer-recorded-gait-analysis.docx"),
+            ("Presimulation Activity 5: Standardized Patient Gait Analysis", "Presimulation Activity 5: Standardized Patient Gait Analysis", "presimulation-activity-5-standardized-patient-gait-analysis.docx"),
+            ("Presimulation Activity 6: Video Analysis", "Presimulation Activity 6: Video Analysis", "presimulation-activity-6-video-analysis.docx"),
+            ("Postsimulation Activity 1: Analysis and Modifications", "Postsimulation Activity 1: Analysis and Modifications", "postsimulation-activity-1-analysis-and-modifications.docx"),
+            ("Postsimulation Activity 2: Home Exercise Program (HEP)", "Postsimulation Activity 2: Home Exercise Program (HEP)", "postsimulation-activity-2-home-exercise-program.docx"),
+            ("Presimulation Activity 3: Reflection", "Presimulation Activity 3: Reflection", "presimulation-activity-3-reflection.docx"),
+        ),
+    },
+    {
+        "id": "simulation-27", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim27 Gen Med Checks.docx", "page": ROOT / "pages" / "simulation-27.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-27",
+        "activities": (
+            ("Presimulation Activity 2: Referral Network", "Presimulation Activity 2: Referral Network", "presimulation-activity-2-referral-network.docx"),
+            ("Presimulation Activity 3: Patient History", "Presimulation Activity 3: Patient History", "presimulation-activity-3-patient-history.docx"),
+            ("Presimulation Activity 4: Case Presentation", "Presimulation Activity 4: Case Presentation", "presimulation-activity-4-case-presentation.docx"),
+            ("Presimulation Activity 5: Plan of Care", "Presimulation Activity 5: Plan of Care", "presimulation-activity-5-plan-of-care.docx"),
+            ("Rubric", "Rubric", "rubric.docx"),
+            ("Postsimulation Activity 1: After Action Report", "Postsimulation Activity 1: After Action Report", "postsimulation-activity-1-after-action-report.docx"),
+            ("Postsimulation Activity 2: Reflection", "Postsimulation Activity 2: Reflection", "postsimulation-activity-2-reflection.docx"),
+        ),
+    },
+    {
+        "id": "simulation-28", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim28 Distracting Rehab.docx", "page": ROOT / "pages" / "simulation-28.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-28",
+        "activities": (
+            ("Presimulation Activity 2: Therapeutic Intervention for Ankle", "Presimulation Activity 2: Therapeutic Intervention for Ankle", "presimulation-activity-2-therapeutic-intervention-for-ankle.docx"),
+            ("Presimulation Activity 3: Warm-Up", "Presimulation Activity 3: Warm-Up", "presimulation-activity-3-warm-up.docx"),
+            ("Presimulation Activity 4: Therapeutic Intervention for Elbow", "Presimulation Activity 4: Therapeutic Intervention for Elbow", "presimulation-activity-4-therapeutic-intervention-for-elbow.docx"),
+            ("Presimulation Activity 5: Ethics", "Presimulation Activity 5: Ethics", "presimulation-activity-5-ethics.docx"),
+            ("Presimulation Activity 6: Policy Development", "Presimulation Activity 6: Policy Development", "presimulation-activity-6-policy-development.docx"),
+            ("Presimulation Activity 7: Return to Participation", "Presimulation Activity 7: Return to Participation", "presimulation-activity-7-return-to-participation.docx"),
+            ("Rubric", "Rubric", "rubric.docx"),
+            ("Postsimulation Activity 1: Reflection", "Postsimulation Activity 1: Reflection", "postsimulation-activity-1-reflection.docx"),
+            ("Postsimulation Activity 2: Policies", "Postsimulation Activity 2: Policies", "postsimulation-activity-2-policies.docx"),
+        ),
+    },
+    {
+        "id": "simulation-29", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim29 Evaluation Juggling.docx", "page": ROOT / "pages" / "simulation-29.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-29",
+        "activities": (
+            ("Presimulation Activity 2: Splinting and Durable Medical Equipment (DME)", "Presimulation Activity 2: Splinting and Durable Medical Equipment (DME)", "presimulation-activity-2-splinting-and-dme.docx"),
+            ("Presimulation Activity 3: Concussion Evaluation", "Presimulation Activity 3: Concussion Evaluation", "presimulation-activity-3-concussion-evaluation.docx"),
+            ("Presimulation Activity 4: Referral Network", "Presimulation Activity 4: Referral Network", "presimulation-activity-4-referral-network.docx"),
+            ("Presimulation Activity 5: Return to Participation", "Presimulation Activity 5: Return to Participation", "presimulation-activity-5-return-to-participation.docx"),
+            ("Presimulation Activity 6: Ethics Policy", "Presimulation Activity 6: Ethics Policy", "presimulation-activity-6-ethics-policy.docx"),
+            ("Rubric", "Rubric", "rubric.docx"),
+            ("Postsimulation Activity 1: Reflection", "Postsimulation Activity 1: Reflection", "postsimulation-activity-1-reflection.docx"),
+            ("Postsimulation Activity 2: Documentation", "Postsimulation Activity 2: Documentation", "postsimulation-activity-2-documentation.docx"),
+        ),
+    },
+    {
+        "id": "simulation-30", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim30 Breaking Bad News.docx", "page": ROOT / "pages" / "simulation-30.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-30",
+        "activities": (
+            ("Presimulation Activity 2: Annotation", "Presimulation Activity 2: Annotation", "presimulation-activity-2-annotation.docx"),
+            ("Presimulation Activity 3: Nonverbal Communication", "Presimulation Activity 3: Nonverbal Communication", "presimulation-activity-3-nonverbal-communication.docx"),
+            ("Presimulation Activity 4: Active Listening", "Presimulation Activity 4: Active Listening", "presimulation-activity-4-active-listening.docx"),
+            ("Presimulation Activity 5: Role-Play", "Presimulation Activity 5: Role-Play", "presimulation-activity-5-role-play.docx"),
+            ("Presimulation Activity 6: Research", "Presimulation Activity 6: Research", "presimulation-activity-6-research.docx"),
+            ("Postsimulation Activity1: Self-Assessment", "Postsimulation Activity1: Self-Assessment", "postsimulation-activity1-self-assessment.docx"),
+            ("Postsimulation Activity 2: Reflection", "Postsimulation Activity 2: Reflection", "postsimulation-activity-2-reflection.docx"),
+            ("Postsimulation Activity 3: Documentation", "Postsimulation Activity 3: Documentation", "postsimulation-activity-3-documentation.docx"),
+        ),
+    },
+    {
+        "id": "simulation-31", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim31 Athlete Orientation Day.docx", "page": ROOT / "pages" / "simulation-31.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-31",
+        "activities": (
+            ("Presimulation Activity 2: Field Research", "Presimulation Activity 2: Field Research", "presimulation-activity-2-field-research.docx"),
+            ("Presimulation Activity 3: Critical Appraisal", "Presimulation Activity 3: Critical Appraisal", "presimulation-activity-3-critical-appraisal.docx"),
+            ("Presimulation Activity 4: Content Creation", "Presimulation Activity 4: Content Creation", "presimulation-activity-4-content-creation.docx"),
+            ("Postsimulation Activity 1: Self-Assessment", "Postsimulation Activity 1: Self-Assessment", "postsimulation-activity-1-self-assessment.docx"),
+            ("Postsimulation Activity 2: Reflection", "Postsimulation Activity 2: Reflection", "postsimulation-activity-2-reflection.docx"),
+            ("Postsimulation Activity 3: Policy Development", "Postsimulation Activity 3: Policy Development", "postsimulation-activity-3-policy-development.docx"),
+        ),
+    },
+    {
+        "id": "simulation-32", "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim32 It all comes together at the hip.docx", "page": ROOT / "pages" / "simulation-32.html", "output_dir": ROOT / "assets" / "downloads" / "simulation-32",
+        "activities": (
+            ("Presimulation Activity 2: Palpation", "Presimulation Activity 2: Palpation", "presimulation-activity-2-palpation.docx"),
+            ("Presimulation Activity 3: Special Test Practice", "Presimulation Activity 3: Special Test Practice", "presimulation-activity-3-special-test-practice.docx"),
+            ("Presimulation Activity 4: Modality Selection", "Presimulation Activity 4: Modality Selection", "presimulation-activity-4-modality-selection.docx"),
+            ("Presimulation Activity 5: Therapeutic Intervention", "Presimulation Activity 5: Therapeutic Intervention", "presimulation-activity-5-therapeutic-intervention.docx"),
+            ("Postsimulation Activity 1: Documentation", "Postsimulation Activity 1: Documentation", "postsimulation-activity-1-documentation.docx"),
+            ("Postsimulation Activity 2: Reflection", "Postsimulation Activity 2: Reflection", "postsimulation-activity-2-reflection.docx"),
+            ("Postsimulation Activity 3: Home Exercise Program", "Postsimulation Activity 3: Home Exercise Program", "postsimulation-activity-3-home-exercise-program.docx"),
+        ),
+    },
 )
 
 
@@ -256,15 +488,12 @@ def remove_text_suffix(paragraph, suffix):
         raise ValueError(f"Could not remove suffix {suffix!r}")
 
 
-def is_begin_marker(text, button_name, title=None):
+def is_begin_marker(text, button_name, title=None, next_text=None):
     if not text.startswith("\\qqBEGIN downloadable content"):
         return False
     marker = text.split("<title>", 1)[0].rstrip("\\")
-    if (
-        marker == "\\qqBEGIN downloadable content. Button name:"
-        and title == "Presimulation Activity 12: Resources"
-    ):
-        return True
+    if marker == "\\qqBEGIN downloadable content. Button name:":
+        return next_text in (f"<title>{title}", f"<b>{title}", f"<a>{title}")
     return marker.endswith(button_name)
 
 
@@ -274,7 +503,19 @@ def activity_document(source_xml, button_name, title):
     children = list(body)
     begin_index = next(
         i for i, node in enumerate(children)
-        if is_begin_marker(paragraph_text(node), button_name, title)
+        if is_begin_marker(
+            paragraph_text(node),
+            button_name,
+            title,
+            next(
+                (
+                    paragraph_text(candidate)
+                    for candidate in children[i + 1:]
+                    if paragraph_text(candidate)
+                ),
+                None,
+            ),
+        )
     )
     end_marker = "\\qqEND downloadable content\\"
     end_index = next(
@@ -299,13 +540,16 @@ def activity_document(source_xml, button_name, title):
         remove_text_suffix(inline_content, end_marker)
         selected.append(inline_content)
 
-    title_texts = (f"<title>{title}", f"<b>{title}")
+    title_texts = (f"<title>{title}", f"<b>{title}", f"<a>{title}")
     try:
         title_index = next(i for i, node in enumerate(selected) if paragraph_text(node) in title_texts)
     except StopIteration:
         raise ValueError(f"Download section for {title!r} has no matching title")
     selected = selected[title_index:]
-    title_prefix = "<title>" if paragraph_text(selected[0]).startswith("<title>") else "<b>"
+    title_prefix = next(
+        prefix for prefix in ("<title>", "<b>", "<a>")
+        if paragraph_text(selected[0]).startswith(prefix)
+    )
     remove_text_prefix(selected[0], title_prefix)
     for node in selected:
         for prefix in ("<txni>", "<tx>", "<lh>"):
@@ -332,7 +576,17 @@ def write_docx(source_path, output_path, document_xml):
 def add_required_footer(output_path):
     document = Document(output_path)
     title_paragraph = next(paragraph for paragraph in document.paragraphs if paragraph.text)
-    title_paragraph.style = document.styles["Heading 1"]
+    try:
+        heading_style = document.styles["Heading 1"]
+    except KeyError:
+        heading_style = document.styles.add_style("Heading 1", WD_STYLE_TYPE.PARAGRAPH)
+        heading_style.base_style = document.styles["Normal"]
+        heading_style.font.size = Pt(20)
+        heading_style.font.color.rgb = RGBColor(0x0F, 0x47, 0x61)
+        heading_style.paragraph_format.space_before = Pt(18)
+        heading_style.paragraph_format.space_after = Pt(4)
+        heading_style.paragraph_format.keep_with_next = True
+    title_paragraph.style = heading_style
     for section in document.sections:
         paragraph = section.footer.paragraphs[0]
         paragraph.clear()

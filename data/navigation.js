@@ -24,7 +24,23 @@ window.COURSE_NAV = [
       { id: "simulation-12", title: "Simulation 12: Modalities Shuffle: Electrotherapy and Ultrasound", path: "pages/simulation-12.html" },
       { id: "simulation-13", title: "Simulation 13: Shoulder Injury", path: "pages/simulation-13.html" },
       { id: "simulation-14", title: "Simulation 14: Taping Ethics", path: "pages/simulation-14.html" },
-      { id: "simulation-x", title: "Simulation X: Placeholder", path: "pages/simulation-x.html" }
+      { id: "simulation-15", title: "Simulation 15: Primary Assessment Simulation Series (PASS)", path: "pages/simulation-15.html" },
+      { id: "simulation-17", title: "Simulation 17: Sensitivity Specificity Insurance Meniscus Simulation (SSIMS)", path: "pages/simulation-17.html" },
+      { id: "simulation-18", title: "Simulation 18: Cervical Spine Injury", path: "pages/simulation-18.html" },
+      { id: "simulation-19", title: "Simulation 19: Snowboard Accident", path: "pages/simulation-19.html" },
+      { id: "simulation-20", title: "Simulation 20: Head-to-Head (Head Injury Part 1)", path: "pages/simulation-20.html" },
+      { id: "simulation-21", title: "Simulation 21: Sport Concussion Assessment Tool (Head Injury Part 2)", path: "pages/simulation-21.html" },
+      { id: "simulation-22", title: "Simulation 22: Provider Communication (Head Injury Part 3)", path: "pages/simulation-22.html" },
+      { id: "simulation-23", title: "Simulation 23: Exertional Heat Stroke", path: "pages/simulation-23.html" },
+      { id: "simulation-24", title: "Simulation 24: Rotator Cuff Complication", path: "pages/simulation-24.html" },
+      { id: "simulation-25", title: "Simulation 25: Foot Pain Telehealth", path: "pages/simulation-25.html" },
+      { id: "simulation-26", title: "Simulation 26: Foot Pain Gait Analysis", path: "pages/simulation-26.html" },
+      { id: "simulation-27", title: "Simulation 27: A Day in the Life: General Medical Checks", path: "pages/simulation-27.html" },
+      { id: "simulation-28", title: "Simulation 28: A Day in the Life: Distractions in Rehabilitation", path: "pages/simulation-28.html" },
+      { id: "simulation-29", title: "Simulation 29: A Day in the Life: Juggling Evaluations", path: "pages/simulation-29.html" },
+      { id: "simulation-30", title: "Simulation 30: Breaking Bad News", path: "pages/simulation-30.html" },
+      { id: "simulation-31", title: "Simulation 31: Athlete Orientation Day", path: "pages/simulation-31.html" },
+      { id: "simulation-32", title: "Simulation 32: It All Comes Together at the Hip", path: "pages/simulation-32.html" }
     ]
   },
   {

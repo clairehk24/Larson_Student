@@ -35,6 +35,8 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgba(214,94,0,.3); ou
 .activity-grid { margin-top: 30px; }
 .download-card { display: grid; grid-template-columns: 46px minmax(0,1fr) 24px; align-items: center; gap: 12px; min-height: 82px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; color: var(--ink); background: white; text-decoration: none; transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
 .download-card:hover { transform: translateY(-2px); border-color: #e5a779; box-shadow: 0 10px 22px rgba(27,38,59,.1); }
+.download-card.resource-pending { opacity: .72; cursor: not-allowed; }
+.download-card.resource-pending:hover { transform: none; border-color: var(--line); box-shadow: none; }
 .file-icon { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 12px; color: var(--accent-dark); background: var(--accent-soft); font: 900 .67rem/1 var(--font-ui); }
 .download-card strong { display: block; color: var(--navy); font-size: .92rem; line-height: 1.25; }
 .download-card small { display: block; margin-top: 5px; color: var(--muted); font: 700 .72rem/1.2 var(--font-ui); }

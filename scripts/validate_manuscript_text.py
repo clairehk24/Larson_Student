@@ -32,19 +32,38 @@ def docx_blocks(path):
 
 
 def introduction_blocks():
-    return [PRODUCTION_TAG.sub("", text) for text in docx_blocks(INTRO_SOURCE)]
+    return [strip_production_tag(text) for text in docx_blocks(INTRO_SOURCE)]
 
 
-def simulation_page_blocks(source, activities):
+def strip_production_tag(text):
+    if text.strip() == "PHOTO HERE":
+        return ""
+    if text.startswith("PHOTO HERE") and "<a>" in text:
+        return text.split("<a>", 1)[1]
+    return PRODUCTION_TAG.sub("", text)
+
+
+def simulation_page_blocks(source, activities, resources=()):
     blocks = []
     in_download = False
-    for text in docx_blocks(source):
-        if text.startswith("Navigation menu/button:"):
+    source_blocks = docx_blocks(source)
+    for index, text in enumerate(source_blocks):
+        if text.startswith("Navigation menu/button"):
             continue
         if text.startswith("\\qqBEGIN downloadable content"):
+            entries = [
+                (button, title) for button, title, _filename in activities
+            ] + [
+                (resource, resource) for resource in resources
+            ]
             button_name = next(
-                button for button, _title, _filename in activities
-                if is_begin_marker(text, button, _title)
+                button for button, _title in entries
+                if is_begin_marker(
+                    text,
+                    button,
+                    _title,
+                    source_blocks[index + 1] if index + 1 < len(source_blocks) else None,
+                )
             )
             blocks.append(button_name)
             in_download = True
@@ -57,29 +76,37 @@ def simulation_page_blocks(source, activities):
             continue
         if in_download:
             continue
-        blocks.append(PRODUCTION_TAG.sub("", text))
+        visible_text = strip_production_tag(text)
+        if visible_text.strip():
+            blocks.append(visible_text)
     return blocks
 
 
 def activity_source_blocks(source, button_name, title):
     blocks = []
     collecting = False
-    for text in docx_blocks(source):
+    source_blocks = docx_blocks(source)
+    for index, text in enumerate(source_blocks):
         if collecting and text.startswith("\\qqBEGIN downloadable content"):
             break
-        if is_begin_marker(text, button_name, title):
+        if is_begin_marker(
+            text,
+            button_name,
+            title,
+            source_blocks[index + 1] if index + 1 < len(source_blocks) else None,
+        ):
             collecting = True
             if "<title>" in text:
                 combined_title = "<title>" + text.split("<title>", 1)[1]
-                blocks.append(PRODUCTION_TAG.sub("", combined_title))
+                blocks.append(strip_production_tag(combined_title))
             continue
         if collecting and text.endswith(END_DOWNLOAD):
             inline_content = text.removesuffix(END_DOWNLOAD)
             if inline_content:
-                blocks.append(PRODUCTION_TAG.sub("", inline_content))
+                blocks.append(strip_production_tag(inline_content))
             break
-        if collecting and not text.startswith("\\qqINSERT "):
-            blocks.append(PRODUCTION_TAG.sub("", text))
+        if collecting and not text.startswith(("\\qqINSERT ", "\\qqID:")):
+            blocks.append(strip_production_tag(text))
     return blocks
 
 
@@ -189,7 +216,11 @@ def main():
         results.append(
             compare(
                 f"{page.relative_to(ROOT).as_posix()} matches {source.name}",
-                simulation_page_blocks(source, simulation["activities"]),
+                simulation_page_blocks(
+                    source,
+                    simulation["activities"],
+                    simulation.get("resources", ()),
+                ),
                 html_blocks(page),
             )
         )
