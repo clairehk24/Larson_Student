@@ -62,6 +62,8 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgba(214,94,0,.3); ou
 .prototype-note p { margin: 0; }
 .introduction-page { max-width: 900px; }
 .introduction-copy p + p { margin-top: 1.35rem; }
+.copyright-heading { margin: 0; color: var(--navy); font-size: clamp(1.45rem, 2.4vw, 2rem); font-weight: 700; line-height: 1.2; }
+.copyright-area .activity-grid { margin-top: 20px; }
 .reading-list ul { margin: 1.35rem 0 0; padding-left: 1.4rem; }
 .reading-list li { padding-left: .35rem; }
 .reading-list li + li { margin-top: 1rem; }

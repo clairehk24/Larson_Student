@@ -48,11 +48,20 @@
 
   function renderNavigation() {
     navRoot.innerHTML = window.COURSE_NAV.map((section, sectionIndex) => {
+      if (section.items.length === 1 && section.items[0].id === "introduction") {
+        const item = section.items[0];
+        return `
+          <a class="nav-link nav-direct" href="${item.path}" target="contentFrame" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-section="${escapeHtml(section.section)}">
+            <span>${escapeHtml(item.title)}</span>
+            <span class="nav-status" aria-label="Not complete">${iconMarkup()}</span>
+          </a>`;
+      }
+
       const links = section.items.map(item => {
-        const number = allItems.findIndex(entry => entry.id === item.id) + 1;
+        const simulationNumber = item.id.match(/^simulation-(\d+)$/)?.[1] || "";
         return `
           <a class="nav-link" href="${item.path}" target="contentFrame" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-section="${escapeHtml(section.section)}">
-            <span class="nav-number" aria-hidden="true">${number}</span>
+            <span class="nav-number${simulationNumber ? "" : " is-empty"}" aria-hidden="true">${simulationNumber}</span>
             <span>${escapeHtml(item.title)}</span>
             <span class="nav-status" aria-label="Not complete">${iconMarkup()}</span>
           </a>`;

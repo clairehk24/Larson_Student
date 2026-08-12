@@ -2,23 +2,30 @@
 
 from copy import deepcopy
 from pathlib import Path
+from pathlib import PureWindowsPath
 import sys
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from docx import Document
 from docx.enum.style import WD_STYLE_TYPE
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import Pt, RGBColor
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Inches, Pt, RGBColor
 from lxml import etree
 
 
 ROOT = Path(__file__).resolve().parents[1]
+IMAGE_DIR = ROOT / "assets" / "images"
 WORD_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 NS = {"w": WORD_NS}
 FOOTER_PREFIX = "From J.M. Larson and H.L. Stedge, "
 FOOTER_TITLE = "Clinical Simulations for the Athletic Trainer HKPropel Access"
 FOOTER_SUFFIX = " (Human Kinetics, 2027)."
 FOOTER_TEXT = FOOTER_PREFIX + FOOTER_TITLE + FOOTER_SUFFIX
+FOOTER_SIZE = Pt(9)
+REQUIRED_FONT = "Aptos"
+REQUIRED_HEADING_SIZE = Pt(20)
 SIMULATIONS = (
     {
         "id": "simulation-1",
@@ -234,6 +241,21 @@ SIMULATIONS = (
             ("Postsimulation Activity 2: Oxygen and Respiration", "Postsimulation Activity 2: Oxygen and Respiration", "postsimulation-activity-2-oxygen-and-respiration.docx"),
             ("Postsimulation Activity 3: Blood Pressure and Perfusion", "Postsimulation Activity 3: Blood Pressure and Perfusion", "postsimulation-activity-3-blood-pressure-and-perfusion.docx"),
             ("Presimulation Activity 4: Other Assessments", "Presimulation Activity 4: Other Assessments", "presimulation-activity-4-other-assessments.docx"),
+        ),
+    },
+    {
+        "id": "simulation-16",
+        "source": ROOT / "assets" / "Manuscripts" / "E9814_Sim16_ A Good Mimic.docx",
+        "page": ROOT / "pages" / "simulation-16.html",
+        "output_dir": ROOT / "assets" / "downloads" / "simulation-16",
+        "activities": (
+            ("Presimulation Activity 2: Medications", "Presimulation Activity 2: Medications", "presimulation-activity-2-medications.docx"),
+            ("Presimulation Activity 3: Injury Evaluation", "Presimulation Activity 3: Injury Evaluation", "presimulation-activity-3-injury-evaluation.docx"),
+            ("Presimulation Activity 4: Power Wheel", "Presimulation Activity 4: Power Wheel", "presimulation-activity-4-power-wheel.docx"),
+            ("Postsimulation Activity 1: Speaking Out", "Postsimulation Activity 1: Speaking Out", "postsimulation-activity-1-speaking-out.docx"),
+            ("Postsimulation Activity 2: Medication Precautions", "Postsimulation Activity 2: Medication Precautions", "postsimulation-activity-2-medication-precautions.docx"),
+            ("Postsimulation Activity 3: Pertinent Negatives and Positives", "Postsimulation Activity 3: Pertinent Negatives and Positives", "postsimulation-activity-3-pertinent-negatives-and-positives.docx"),
+            ("Postsimulation Activity 4: Commentary", "Postsimulation Activity 4: Commentary", "postsimulation-activity-4-commentary.docx"),
         ),
     },
     {
@@ -531,8 +553,6 @@ def activity_document(source_xml, button_name, title):
         remove_text_prefix(combined_title, marker_prefix)
         selected.append(combined_title)
     for node in children[begin_index + 1:end_index]:
-        if paragraph_text(node).startswith("\\qqINSERT "):
-            continue
         selected.append(deepcopy(node))
     end_node = children[end_index]
     if paragraph_text(end_node).endswith(end_marker) and paragraph_text(end_node) != end_marker:
@@ -573,8 +593,120 @@ def write_docx(source_path, output_path, document_xml):
             output.writestr(item, payload)
 
 
-def add_required_footer(output_path):
+def insert_supplied_images(document):
+    for paragraph in document.paragraphs:
+        marker = paragraph.text.strip()
+        if not marker.startswith("\\qqINSERT "):
+            continue
+        source_name = PureWindowsPath(marker.removeprefix("\\qqINSERT ").strip()).stem
+        image_path = IMAGE_DIR / f"{source_name}.png"
+        if not image_path.exists():
+            raise FileNotFoundError(
+                f"No supplied PNG matches image marker {source_name!r}: {image_path}"
+            )
+
+        section = document.sections[0]
+        available_width = section.page_width - section.left_margin - section.right_margin
+        paragraph.clear()
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        picture = paragraph.add_run().add_picture(str(image_path))
+        max_width = min(available_width, Inches(6.5))
+        max_height = Inches(7.25)
+        scale = min(max_width / picture.width, max_height / picture.height, 1)
+        picture.width = int(picture.width * scale)
+        picture.height = int(picture.height * scale)
+
+
+def set_run_font(run_element, font_name):
+    run_properties = run_element.find(qn("w:rPr"))
+    if run_properties is None:
+        run_properties = OxmlElement("w:rPr")
+        run_element.insert(0, run_properties)
+    run_fonts = run_properties.find(qn("w:rFonts"))
+    if run_fonts is None:
+        run_fonts = OxmlElement("w:rFonts")
+        run_properties.insert(0, run_fonts)
+    for attribute in ("ascii", "hAnsi", "eastAsia", "cs"):
+        run_fonts.set(qn(f"w:{attribute}"), font_name)
+    for attribute in ("asciiTheme", "hAnsiTheme", "eastAsiaTheme", "csTheme"):
+        run_fonts.attrib.pop(qn(f"w:{attribute}"), None)
+
+
+def apply_required_font(document):
+    normal_style = document.styles["Normal"]
+    normal_style.font.name = REQUIRED_FONT
+    normal_run_properties = normal_style.element.get_or_add_rPr()
+    normal_run_fonts = normal_run_properties.get_or_add_rFonts()
+    for attribute in ("ascii", "hAnsi", "eastAsia", "cs"):
+        normal_run_fonts.set(qn(f"w:{attribute}"), REQUIRED_FONT)
+
+    for part in document.part.package.parts:
+        if str(part.partname) == "/word/theme/theme1.xml":
+            theme = etree.fromstring(part.blob)
+            major_latin = theme.xpath(
+                './/*[local-name()="majorFont"]/*[local-name()="latin"]'
+            )
+            minor_latin = theme.xpath(
+                './/*[local-name()="minorFont"]/*[local-name()="latin"]'
+            )
+            if major_latin:
+                major_latin[0].set("typeface", "Aptos Display")
+            if minor_latin:
+                minor_latin[0].set("typeface", REQUIRED_FONT)
+            part._blob = etree.tostring(
+                theme, xml_declaration=True, encoding="UTF-8", standalone=True
+            )
+
+        element = getattr(part, "element", None)
+        if element is None:
+            continue
+        for run_element in element.iter(qn("w:r")):
+            if any(True for _ in run_element.iter(qn("w:t"))):
+                set_run_font(run_element, REQUIRED_FONT)
+
+
+def set_run_size(run_element, half_points):
+    run_properties = run_element.find(qn("w:rPr"))
+    if run_properties is None:
+        run_properties = OxmlElement("w:rPr")
+        run_element.insert(0, run_properties)
+    for element_name in ("w:sz", "w:szCs"):
+        size_element = run_properties.find(qn(element_name))
+        if size_element is None:
+            size_element = OxmlElement(element_name)
+            run_properties.append(size_element)
+        size_element.set(qn("w:val"), str(half_points))
+
+
+def apply_required_heading_size(document):
+    heading_style_ids = set()
+    for style in document.styles:
+        if style.type == WD_STYLE_TYPE.PARAGRAPH and style.name.startswith("Heading"):
+            style.font.size = REQUIRED_HEADING_SIZE
+            heading_style_ids.add(style.style_id)
+
+    for part in document.part.package.parts:
+        element = getattr(part, "element", None)
+        if element is None:
+            continue
+        for paragraph in element.iter(qn("w:p")):
+            paragraph_style = paragraph.find(qn("w:pPr"))
+            if paragraph_style is None:
+                continue
+            paragraph_style = paragraph_style.find(qn("w:pStyle"))
+            if (
+                paragraph_style is None
+                or paragraph_style.get(qn("w:val")) not in heading_style_ids
+            ):
+                continue
+            for run_element in paragraph.iter(qn("w:r")):
+                if any(True for _ in run_element.iter(qn("w:t"))):
+                    set_run_size(run_element, 40)
+
+
+def finalize_document(output_path):
     document = Document(output_path)
+    insert_supplied_images(document)
     title_paragraph = next(paragraph for paragraph in document.paragraphs if paragraph.text)
     try:
         heading_style = document.styles["Heading 1"]
@@ -590,11 +722,20 @@ def add_required_footer(output_path):
     for section in document.sections:
         paragraph = section.footer.paragraphs[0]
         paragraph.clear()
+        paragraph.style = document.styles["Normal"]
         paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        paragraph.add_run(FOOTER_PREFIX)
+        paragraph.paragraph_format.line_spacing = 1
+        paragraph.paragraph_format.space_before = Pt(0)
+        paragraph.paragraph_format.space_after = Pt(0)
+        prefix_run = paragraph.add_run(FOOTER_PREFIX)
         title_run = paragraph.add_run(FOOTER_TITLE)
         title_run.italic = True
-        paragraph.add_run(FOOTER_SUFFIX)
+        suffix_run = paragraph.add_run(FOOTER_SUFFIX)
+        for run in (prefix_run, title_run, suffix_run):
+            run.font.name = REQUIRED_FONT
+            run.font.size = FOOTER_SIZE
+    apply_required_font(document)
+    apply_required_heading_size(document)
     document.save(output_path)
 
 
@@ -615,7 +756,7 @@ def main():
             output_path = output_dir / filename
             document_xml = activity_document(source_xml, button_name, title)
             write_docx(source_path, output_path, document_xml)
-            add_required_footer(output_path)
+            finalize_document(output_path)
             print(f"WROTE: {output_path.relative_to(ROOT)}")
 
 

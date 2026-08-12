@@ -25,6 +25,7 @@ window.COURSE_NAV = [
       { id: "simulation-13", title: "Simulation 13: Shoulder Injury", path: "pages/simulation-13.html" },
       { id: "simulation-14", title: "Simulation 14: Taping Ethics", path: "pages/simulation-14.html" },
       { id: "simulation-15", title: "Simulation 15: Primary Assessment Simulation Series (PASS)", path: "pages/simulation-15.html" },
+      { id: "simulation-16", title: "Simulation 16: A Good Mimic", path: "pages/simulation-16.html" },
       { id: "simulation-17", title: "Simulation 17: Sensitivity Specificity Insurance Meniscus Simulation (SSIMS)", path: "pages/simulation-17.html" },
       { id: "simulation-18", title: "Simulation 18: Cervical Spine Injury", path: "pages/simulation-18.html" },
       { id: "simulation-19", title: "Simulation 19: Snowboard Accident", path: "pages/simulation-19.html" },
@@ -41,13 +42,6 @@ window.COURSE_NAV = [
       { id: "simulation-30", title: "Simulation 30: Breaking Bad News", path: "pages/simulation-30.html" },
       { id: "simulation-31", title: "Simulation 31: Athlete Orientation Day", path: "pages/simulation-31.html" },
       { id: "simulation-32", title: "Simulation 32: It All Comes Together at the Hip", path: "pages/simulation-32.html" }
-    ]
-  },
-  {
-    section: "Placeholder for another section",
-    open: true,
-    items: [
-      { id: "simulation-copy", title: "Copy of Simulation X: Placeholder", path: "pages/simulation-copy.html" }
     ]
   }
 ];
