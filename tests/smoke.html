@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Larson WCAG regression smoke test</title>
+  <style>
+    html, body, iframe { width: 100%; height: 100%; margin: 0; border: 0; }
+    #results { position: fixed; inset: 0; overflow: auto; background: white; z-index: 2; }
+  </style>
+</head>
+<body>
+  <iframe id="course" title="Course under test" src="../index.html"></iframe>
+  <pre id="results">RUNNING</pre>
+  <script>
+    const results = document.getElementById("results");
+    const frame = document.getElementById("course");
+    const checks = [];
+    const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+    const check = (condition, message) => checks.push(`${condition ? "PASS" : "FAIL"}: ${message}`);
+
+    function luminance(color) {
+      const values = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(value => {
+        value /= 255;
+        return value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4;
+      });
+      return .2126 * values[0] + .7152 * values[1] + .0722 * values[2];
+    }
+
+    function contrast(first, second) {
+      const values = [luminance(first), luminance(second)].sort((a, b) => b - a);
+      return (values[0] + .05) / (values[1] + .05);
+    }
+
+    frame.addEventListener("load", async () => {
+      await wait(500);
+      const win = frame.contentWindow;
+      const doc = frame.contentDocument;
+      const sidebar = doc.getElementById("sidebar");
+      const menu = doc.getElementById("menuButton");
+      const search = doc.getElementById("courseSearch");
+      const complete = doc.getElementById("completeButton");
+
+      check(doc.querySelectorAll(".nav-link").length === 33, "all 33 course pages are in navigation");
+      check(win.matchMedia("(max-width: 980px)").matches, "test is running at the mobile breakpoint");
+      check(sidebar.inert && sidebar.getAttribute("aria-hidden") === "true", "closed mobile navigation is inert and hidden from assistive technology");
+
+      menu.click();
+      await wait(100);
+      check(!sidebar.inert && menu.getAttribute("aria-expanded") === "true", "opening the mobile menu restores navigation interactivity");
+      check(doc.activeElement === search, "opening the mobile menu moves focus to search");
+
+      win.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      await wait(100);
+      check(sidebar.inert && doc.activeElement === menu, "Escape closes the menu and restores focus to its button");
+
+      const completeStyle = win.getComputedStyle(complete);
+      check(contrast(completeStyle.color, completeStyle.backgroundColor) >= 4.5, "primary-button text contrast is at least 4.5:1");
+      check(doc.getElementById("viewerRegion").tabIndex === -1, "skip-link target can receive programmatic focus");
+      check(doc.getElementById("pageStatus").getAttribute("aria-live") === "polite", "lesson-load status is exposed to assistive technology");
+
+      complete.click();
+      const activeStatus = doc.querySelector('.nav-link[aria-current="page"] .nav-status');
+      check(activeStatus.getAttribute("aria-label") === "Complete", "completion state has a programmatic text label");
+      check(activeStatus.querySelectorAll("circle").length === 1 && activeStatus.querySelectorAll("path").length === 1, "completion state has a non-color visual difference");
+
+      const failures = checks.filter(item => item.startsWith("FAIL"));
+      results.textContent = `${checks.join("\n")}\nSUMMARY: ${checks.length - failures.length} passed, ${failures.length} failed`;
+      results.dataset.complete = "true";
+    }, { once: true });
+  </script>
+</body>
+</html>

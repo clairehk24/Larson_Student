@@ -17,6 +17,9 @@
   const sidebar = document.getElementById("sidebar");
   const menuButton = document.getElementById("menuButton");
   const mobileScrim = document.getElementById("mobileScrim");
+  const menuButtonText = menuButton.querySelector(".sr-only");
+  const pageStatus = document.getElementById("pageStatus");
+  const mobileQuery = window.matchMedia("(max-width: 980px)");
 
   const STORAGE_KEY = "larson-poc-completed-pages";
   const allItems = window.COURSE_NAV.flatMap(section =>
@@ -42,8 +45,10 @@
     }
   }
 
-  function iconMarkup() {
-    return `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>`;
+  function iconMarkup(isComplete = false) {
+    return isComplete
+      ? `<svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>`
+      : `<svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>`;
   }
 
   function renderNavigation() {
@@ -115,7 +120,7 @@
 
     updateCompleteButton();
     updatePageControls();
-    closeMobileMenu();
+    closeMobileMenu(mobileQuery.matches);
   }
 
   function updatePageControls() {
@@ -141,6 +146,7 @@
       link.classList.toggle("is-complete", isComplete);
       const status = link.querySelector(".nav-status");
       status.setAttribute("aria-label", isComplete ? "Complete" : "Not complete");
+      status.innerHTML = iconMarkup(isComplete);
     });
 
     const count = allItems.filter(item => completed.has(item.id)).length;
@@ -173,26 +179,59 @@
 
   function openMobileMenu() {
     sidebar.classList.add("is-open");
+    sidebar.inert = false;
+    sidebar.removeAttribute("aria-hidden");
     mobileScrim.hidden = false;
     menuButton.setAttribute("aria-expanded", "true");
+    menuButtonText.textContent = "Close course menu";
+    window.requestAnimationFrame(() => search.focus());
   }
 
-  function closeMobileMenu() {
+  function closeMobileMenu(restoreFocus = false) {
+    const wasOpen = sidebar.classList.contains("is-open");
     sidebar.classList.remove("is-open");
     mobileScrim.hidden = true;
     menuButton.setAttribute("aria-expanded", "false");
+    menuButtonText.textContent = "Open course menu";
+    if (mobileQuery.matches) {
+      sidebar.inert = true;
+      sidebar.setAttribute("aria-hidden", "true");
+    } else {
+      sidebar.inert = false;
+      sidebar.removeAttribute("aria-hidden");
+    }
+    if (restoreFocus && wasOpen) menuButton.focus();
+  }
+
+  function syncSidebarForViewport() {
+    if (mobileQuery.matches && !sidebar.classList.contains("is-open")) {
+      sidebar.inert = true;
+      sidebar.setAttribute("aria-hidden", "true");
+      mobileScrim.hidden = true;
+    } else {
+      sidebar.inert = false;
+      sidebar.removeAttribute("aria-hidden");
+      if (!mobileQuery.matches) mobileScrim.hidden = true;
+    }
   }
 
   renderNavigation();
   updateProgress();
   openItem(0);
+  syncSidebarForViewport();
 
   search.addEventListener("input", event => filterNavigation(event.target.value));
   completeButton.addEventListener("click", toggleComplete);
   openPageButton.addEventListener("click", () => window.open(allItems[activeIndex].path, "_blank", "noopener"));
   previousButton.addEventListener("click", () => openItem(activeIndex - 1));
   nextButton.addEventListener("click", () => openItem(activeIndex + 1));
-  menuButton.addEventListener("click", () => sidebar.classList.contains("is-open") ? closeMobileMenu() : openMobileMenu());
-  mobileScrim.addEventListener("click", closeMobileMenu);
-  window.addEventListener("keydown", event => { if (event.key === "Escape") closeMobileMenu(); });
+  frame.addEventListener("load", () => {
+    pageStatus.textContent = `${frame.title} loaded`;
+  });
+  menuButton.addEventListener("click", () => sidebar.classList.contains("is-open") ? closeMobileMenu(true) : openMobileMenu());
+  mobileScrim.addEventListener("click", () => closeMobileMenu(true));
+  window.addEventListener("keydown", event => {
+    if (event.key === "Escape" && sidebar.classList.contains("is-open")) closeMobileMenu(true);
+  });
+  mobileQuery.addEventListener("change", syncSidebarForViewport);
 })();

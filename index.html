@@ -33,7 +33,7 @@
         <div class="sidebar-progress" aria-label="Course progress">
           <div class="progress-copy">
             <span>Progress</span>
-            <strong id="progressText">0 of 4 complete</strong>
+            <strong id="progressText" aria-live="polite">0 of 4 complete</strong>
           </div>
           <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
         </div>
@@ -63,8 +63,9 @@
           </div>
         </header>
 
-        <section class="viewer-region" id="viewerRegion" aria-label="Selected course page">
+        <section class="viewer-region" id="viewerRegion" tabindex="-1" aria-label="Selected course page">
           <iframe id="contentFrame" name="contentFrame" title="Introduction" src="pages/introduction.html"></iframe>
+          <p class="sr-only" id="pageStatus" aria-live="polite"></p>
         </section>
 
         <footer class="page-controls" aria-label="Page navigation">
