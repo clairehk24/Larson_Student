@@ -1,12 +1,17 @@
 """Apply repeatable accessibility remediations to Larson student assets.
 
-The script intentionally changes only known course HTML and DOCX packages. It is
-idempotent so it can be rerun after the downloadable activities are regenerated.
+DOCX parts are edited as raw XML bytes. This deliberately preserves every
+namespace declaration and compatibility attribute produced by Microsoft Word.
+Use ``--base-ref`` only to rebuild packages from a known Git revision.
 """
 
 from __future__ import annotations
 
+import argparse
+import html
 import os
+import re
+import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
 from io import BytesIO
@@ -17,29 +22,12 @@ from zipfile import ZIP_DEFLATED, ZipFile
 ROOT = Path(__file__).resolve().parents[1]
 PAGES = ROOT / "pages"
 DOWNLOADS = ROOT / "assets" / "downloads"
-
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 WP_NS = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
 DC_NS = "http://purl.org/dc/elements/1.1/"
-CP_NS = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
-DCTERMS_NS = "http://purl.org/dc/terms/"
-DCTYPES_NS = "http://purl.org/dc/dcmitype/"
-XSI_NS = "http://www.w3.org/2001/XMLSchema-instance"
-
 W = f"{{{W_NS}}}"
 WP = f"{{{WP_NS}}}"
 DC = f"{{{DC_NS}}}"
-
-for prefix, uri in (
-    ("w", W_NS),
-    ("wp", WP_NS),
-    ("cp", CP_NS),
-    ("dc", DC_NS),
-    ("dcterms", DCTERMS_NS),
-    ("dcmitype", DCTYPES_NS),
-    ("xsi", XSI_NS),
-):
-    ET.register_namespace(prefix, uri)
 
 
 IMAGE_ALT_TEXT = {
@@ -62,21 +50,16 @@ IMAGE_ALT_TEXT = {
 }
 
 
+def xml_attribute(value: str) -> bytes:
+    return html.escape(value, quote=True).encode("utf-8")
+
+
 def text_of_paragraph(paragraph: ET.Element) -> str:
     return "".join(node.text or "" for node in paragraph.findall(f".//{W}t")).strip()
 
 
-def parse_xml(data: bytes) -> ET.Element:
-    # Preserve Word's original prefixes because mc:Ignorable names them by prefix.
-    for _, (prefix, uri) in ET.iterparse(BytesIO(data), events=("start-ns",)):
-        try:
-            ET.register_namespace(prefix or "", uri)
-        except ValueError:
-            pass
-    return ET.fromstring(data)
-
-
-def document_title(document: ET.Element, fallback: str) -> str:
+def document_title(document_xml: bytes, fallback: str) -> str:
+    document = ET.fromstring(document_xml)
     body = document.find(f"{W}body")
     if body is not None:
         for paragraph in body.findall(f"{W}p"):
@@ -86,109 +69,181 @@ def document_title(document: ET.Element, fallback: str) -> str:
     return fallback
 
 
-def ensure_heading_one(document: ET.Element) -> bool:
-    body = document.find(f"{W}body")
-    if body is None:
-        return False
-    for paragraph in body.findall(f"{W}p"):
-        if not text_of_paragraph(paragraph):
-            continue
-        properties = paragraph.find(f"{W}pPr")
-        if properties is None:
-            properties = ET.Element(f"{W}pPr")
-            paragraph.insert(0, properties)
-        style = properties.find(f"{W}pStyle")
-        if style is None:
-            style = ET.Element(f"{W}pStyle")
-            properties.insert(0, style)
-        changed = style.get(f"{W}val") != "Heading1"
-        style.set(f"{W}val", "Heading1")
-        return changed
-    return False
+def set_core_title(core_xml: bytes, title: str) -> tuple[bytes, int]:
+    replacement = b"<dc:title>" + html.escape(title).encode("utf-8") + b"</dc:title>"
+    pattern = rb"<dc:title(?:\s[^>]*)?>.*?</dc:title>|<dc:title\s*/>"
+    updated, count = re.subn(pattern, replacement, core_xml, count=1, flags=re.DOTALL)
+    if count == 0:
+        closing = b"</cp:coreProperties>"
+        if closing not in core_xml:
+            raise ValueError("DOCX core properties have no insertion point for dc:title")
+        updated = core_xml.replace(closing, replacement + closing, 1)
+    elif count != 1:
+        raise ValueError("DOCX core properties contain multiple dc:title elements")
+    return updated, int(updated != core_xml)
 
 
-def ensure_table_accessibility(document: ET.Element, title: str) -> int:
-    changed = 0
-    for number, table in enumerate(document.findall(f".//{W}tbl"), start=1):
-        properties = table.find(f"{W}tblPr")
-        if properties is None:
-            properties = ET.Element(f"{W}tblPr")
-            table.insert(0, properties)
-
-        caption = properties.find(f"{W}tblCaption")
-        if caption is None:
-            caption = ET.SubElement(properties, f"{W}tblCaption")
-        caption_value = f"{title} — table {number}"
-        if caption.get(f"{W}val") != caption_value:
-            caption.set(f"{W}val", caption_value)
-            changed += 1
-
-        description = properties.find(f"{W}tblDescription")
-        if description is None:
-            description = ET.SubElement(properties, f"{W}tblDescription")
-        description_value = "Worksheet table. Read the cells from left to right across each row."
-        if description.get(f"{W}val") != description_value:
-            description.set(f"{W}val", description_value)
-            changed += 1
-
-        rows = table.findall(f"{W}tr")
-        if rows:
-            row_properties = rows[0].find(f"{W}trPr")
-            if row_properties is None:
-                row_properties = ET.Element(f"{W}trPr")
-                rows[0].insert(0, row_properties)
-            if row_properties.find(f"{W}tblHeader") is None:
-                ET.SubElement(row_properties, f"{W}tblHeader")
-                changed += 1
-    return changed
+def ensure_heading_one(document_xml: bytes) -> tuple[bytes, int]:
+    paragraph = re.search(rb"<w:p(?:\s[^>]*)?>.*?</w:p>", document_xml, re.DOTALL)
+    if paragraph is None:
+        return document_xml, 0
+    first = paragraph.group(0)
+    updated_first, count = re.subn(
+        rb'(<w:pStyle\b[^>]*\bw:val=")Heading2(")',
+        rb"\1Heading1\2",
+        first,
+        count=1,
+    )
+    if not count:
+        return document_xml, 0
+    return document_xml[: paragraph.start()] + updated_first + document_xml[paragraph.end() :], 1
 
 
-def ensure_image_alternatives(document: ET.Element, relative_path: str) -> int:
-    drawings = document.findall(f".//{WP}docPr")
+def ensure_image_alternatives(
+    document_xml: bytes, relative_path: str
+) -> tuple[bytes, int]:
     alternatives = IMAGE_ALT_TEXT.get(relative_path, [])
-    if drawings and len(drawings) != len(alternatives):
+    matches = list(re.finditer(rb"<wp:docPr\b[^>]*/>", document_xml))
+    if matches and len(matches) != len(alternatives):
         raise ValueError(
             f"Expected {len(alternatives)} image descriptions for {relative_path}, "
-            f"found {len(drawings)} drawings"
+            f"found {len(matches)} drawings"
         )
-    changed = 0
-    for drawing, alternative in zip(drawings, alternatives):
-        if drawing.get("descr") != alternative:
-            drawing.set("descr", alternative)
-            changed += 1
-    return changed
+    if not matches:
+        return document_xml, 0
+    pieces: list[bytes] = []
+    position = 0
+    changes = 0
+    for match, alternative in zip(matches, alternatives):
+        tag = match.group(0)
+        description = b'descr="' + xml_attribute(alternative) + b'"'
+        if re.search(rb"\bdescr=", tag):
+            updated = re.sub(rb'descr="[^"]*"', description, tag, count=1)
+        else:
+            updated = tag[:-2].rstrip() + b" " + description + b"/>"
+        pieces.extend((document_xml[position : match.start()], updated))
+        position = match.end()
+        changes += int(updated != tag)
+    pieces.append(document_xml[position:])
+    return b"".join(pieces), changes
 
 
-def set_core_title(core: ET.Element, title: str) -> bool:
-    node = core.find(f"{DC}title")
-    if node is None:
-        node = ET.SubElement(core, f"{DC}title")
-    changed = (node.text or "").strip() != title
-    node.text = title
-    return changed
+def remediate_table(table: bytes, title: str, number: int) -> tuple[bytes, int]:
+    changes = 0
+    caption = (
+        b'<w:tblCaption w:val="'
+        + xml_attribute(f"{title} — table {number}")
+        + b'"/><w:tblDescription w:val="Worksheet table. Read the cells from left to right across each row."/>'
+    )
+    properties = re.search(rb"<w:tblPr(?:\s[^>]*)?>", table)
+    if properties is None:
+        opening = re.search(rb"<w:tbl(?:\s[^>]*)?>", table)
+        if opening is None:
+            raise ValueError("Malformed Word table")
+        insertion = b"<w:tblPr>" + caption + b"</w:tblPr>"
+        table = table[: opening.end()] + insertion + table[opening.end() :]
+        changes += 1
+    elif b"<w:tblCaption" not in table:
+        properties_end = table.find(b"</w:tblPr>", properties.end())
+        if properties_end < 0:
+            raise ValueError("Malformed Word table properties")
+        change_marker = table.find(b"<w:tblPrChange", properties.end(), properties_end)
+        insertion_at = change_marker if change_marker >= 0 else properties_end
+        table = table[:insertion_at] + caption + table[insertion_at:]
+        changes += 1
+
+    first_row = re.search(rb"<w:tr(?:\s[^>]*)?>", table)
+    if first_row is not None:
+        row_end = table.find(b"</w:tr>", first_row.end())
+        row = table[first_row.start() : row_end if row_end >= 0 else len(table)]
+        if b"<w:tblHeader" not in row:
+            row_properties = re.search(rb"<w:trPr(?:\s[^>]*)?>", row)
+            if row_properties is None:
+                insertion = b"<w:trPr><w:tblHeader/></w:trPr>"
+                table = table[: first_row.end()] + insertion + table[first_row.end() :]
+            else:
+                if row_properties.group(0).rstrip().endswith(b"/>"):
+                    replacement = row_properties.group(0).rstrip()[:-2] + b"><w:tblHeader/></w:trPr>"
+                    insertion_at = first_row.start() + row_properties.start()
+                    absolute_end = first_row.start() + row_properties.end()
+                    table = table[:insertion_at] + replacement + table[absolute_end:]
+                    return table, changes + 1
+                properties_end = row.find(b"</w:trPr>", row_properties.end())
+                if properties_end < 0:
+                    raise ValueError("Malformed Word table-row properties")
+                later_property = re.search(
+                    rb"<w:(?:tblCellSpacing|jc|hidden|ins|del|trPrChange)\b",
+                    row[row_properties.end() : properties_end],
+                )
+                relative_at = (
+                    row_properties.end() + later_property.start()
+                    if later_property is not None
+                    else properties_end
+                )
+                insertion_at = first_row.start() + relative_at
+                table = table[:insertion_at] + b"<w:tblHeader/>" + table[insertion_at:]
+            changes += 1
+    return table, changes
 
 
-def rewrite_docx(path: Path) -> tuple[int, str]:
+def ensure_table_accessibility(document_xml: bytes, title: str) -> tuple[bytes, int]:
+    tables = list(re.finditer(rb"<w:tbl(?:\s[^>]*)?>.*?</w:tbl>", document_xml, re.DOTALL))
+    if not tables:
+        return document_xml, 0
+    pieces: list[bytes] = []
+    position = 0
+    changes = 0
+    for number, match in enumerate(tables, start=1):
+        updated, table_changes = remediate_table(match.group(0), title, number)
+        pieces.extend((document_xml[position : match.start()], updated))
+        position = match.end()
+        changes += table_changes
+    pieces.append(document_xml[position:])
+    return b"".join(pieces), changes
+
+
+def validate_compatibility_namespaces(document_xml: bytes) -> None:
+    root_start = document_xml.find(b"<w:document")
+    root_end = document_xml.find(b">", root_start)
+    if root_start < 0 or root_end < 0:
+        raise ValueError("Word document root element is missing")
+    root = document_xml[root_start : root_end + 1]
+    match = re.search(rb'mc:Ignorable="([^"]+)"', root)
+    if match:
+        for prefix in match.group(1).split():
+            if b"xmlns:" + prefix + b"=" not in root:
+                raise ValueError(f"mc:Ignorable refers to undeclared namespace {prefix!r}")
+    ET.fromstring(document_xml)
+
+
+def git_file(revision: str, path: Path) -> bytes:
+    relative = path.relative_to(ROOT).as_posix()
+    return subprocess.check_output(["git", "show", f"{revision}:{relative}"], cwd=ROOT)
+
+
+def rewrite_docx(path: Path, base_ref: str | None = None) -> tuple[int, str]:
     relative_path = path.relative_to(DOWNLOADS).as_posix()
-    with ZipFile(path, "r") as source:
-        document = parse_xml(source.read("word/document.xml"))
-        core = parse_xml(source.read("docProps/core.xml"))
-        title = document_title(document, path.stem.replace("-", " ").title())
+    package = git_file(base_ref, path) if base_ref else path.read_bytes()
+    with ZipFile(BytesIO(package), "r") as source:
+        document_xml = source.read("word/document.xml")
+        core_xml = source.read("docProps/core.xml")
+        title = document_title(document_xml, path.stem.replace("-", " ").title())
 
-        changes = int(set_core_title(core, title))
-        changes += int(ensure_heading_one(document))
-        changes += ensure_table_accessibility(document, title)
-        changes += ensure_image_alternatives(document, relative_path)
-
-        document_bytes = ET.tostring(document, encoding="utf-8", xml_declaration=True)
-        core_bytes = ET.tostring(core, encoding="utf-8", xml_declaration=True)
+        core_xml, changes = set_core_title(core_xml, title)
+        document_xml, count = ensure_heading_one(document_xml)
+        changes += count
+        document_xml, count = ensure_table_accessibility(document_xml, title)
+        changes += count
+        document_xml, count = ensure_image_alternatives(document_xml, relative_path)
+        changes += count
+        validate_compatibility_namespaces(document_xml)
 
         entries = []
         for item in source.infolist():
             if item.filename == "word/document.xml":
-                entries.append((item, document_bytes))
+                entries.append((item, document_xml))
             elif item.filename == "docProps/core.xml":
-                entries.append((item, core_bytes))
+                entries.append((item, core_xml))
             else:
                 entries.append((item, source.read(item.filename)))
 
@@ -201,6 +256,9 @@ def rewrite_docx(path: Path) -> tuple[int, str]:
         with ZipFile(temporary_path, "w", compression=ZIP_DEFLATED) as target:
             for item, content in entries:
                 target.writestr(item, content)
+        with ZipFile(temporary_path) as check:
+            if check.testzip() is not None:
+                raise ValueError(f"CRC failure while rebuilding {path}")
         os.replace(temporary_path, path)
     finally:
         temporary_path.unlink(missing_ok=True)
@@ -225,11 +283,17 @@ def remediate_html() -> int:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--base-ref",
+        help="Rebuild DOCX packages from this Git revision before applying fixes",
+    )
+    args = parser.parse_args()
     html_count = remediate_html()
     docx_count = 0
     change_count = 0
     for path in sorted(DOWNLOADS.rglob("*.docx")):
-        changes, title = rewrite_docx(path)
+        changes, title = rewrite_docx(path, args.base_ref)
         docx_count += 1
         change_count += changes
         print(f"DOCX: {path.relative_to(ROOT)} — {title}")
