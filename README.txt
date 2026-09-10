@@ -24,6 +24,9 @@ The Rise web export stores course text in an encoded runtime-data.js file. This 
 VERIFY MANUSCRIPT TEXT
 Run `python scripts/validate_manuscript_text.py` after editing manuscript-based pages. The check compares the reader-facing HTML blocks with their source Word paragraphs and fails if wording, spelling, punctuation, capitalization, or ordering changes.
 
+VERIFY MANUSCRIPT FORMATTING
+Run `python scripts/audit_manuscript_formatting.py` after editing manuscript-based pages. The check compares every reader-facing text block with its source Word paragraph and also verifies bold, italic, underline, superscript, and subscript formatting.
+
 NOTES
 - The two lessons labeled Placeholder retain their copied Rise content and display a review notice.
 - No external libraries or packaged font files are used.
