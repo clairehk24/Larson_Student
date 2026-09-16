@@ -48,6 +48,12 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outlin
 .download-heading span { color: var(--muted); font: 700 .76rem/1.2 var(--font-ui); }
 .download-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
 .activity-grid { margin-top: 30px; }
+.video-heading { margin: 32px 0 14px; color: var(--navy); font-size: 1.15rem; line-height: 1.3; }
+.video-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.video-embed { min-width: 0; margin: 0; }
+.video-frame { position: relative; overflow: hidden; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: 14px; background: var(--navy); box-shadow: 0 8px 20px rgba(27,38,59,.1); }
+.video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-embed figcaption { margin-top: 8px; color: var(--navy); font: 700 .9rem/1.35 var(--font-ui); }
 .download-card { display: grid; grid-template-columns: 46px minmax(0,1fr) 24px; align-items: center; gap: 12px; min-height: 82px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; color: var(--ink); background: white; text-decoration: none; transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
 .download-card:hover { transform: translateY(-2px); border-color: #e5a779; box-shadow: 0 10px 22px rgba(27,38,59,.1); }
 .download-card.resource-pending { opacity: .72; cursor: not-allowed; }
@@ -68,5 +74,5 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outlin
 .reading-list li { padding-left: .35rem; }
 .reading-list li + li { margin-top: 1rem; }
 .reading-list li::marker { color: var(--accent); }
-@media (max-width: 600px) { .lesson-header { padding: 36px 22px; } .page { width: min(100% - 24px, 980px); padding-top: 24px; } .content-card { padding: 24px 20px; border-radius: 14px; } .download-heading { display: block; } .download-heading span { display: block; margin-top: 6px; } }
+@media (max-width: 600px) { .lesson-header { padding: 36px 22px; } .page { width: min(100% - 24px, 980px); padding-top: 24px; } .content-card { padding: 24px 20px; border-radius: 14px; } .download-heading { display: block; } .download-heading span { display: block; margin-top: 6px; } .video-grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
